@@ -65,6 +65,28 @@ class MATRIX {
             }while (det() != 1);
 
         }
+        if (parameter == "rand-L") {
+            do {
+                for (auto &row : matrix)
+                    for (auto &col : row)col = rand() % (9) -4;
+            }while (det() != 0);
+            for (int i =0; i < matrix.size(); i++)
+                for (int j = 0; j < matrix[0].size(); j++) {
+                    if (j>i) matrix[i][j]=0;
+                    if (i==j) matrix[i][j]=1;
+                }
+
+        }
+        if (parameter == "rand-U") {
+            do {
+                for (auto &row : matrix)
+                    for (auto &col : row)col = rand() % (9) -4;
+            }while (det() != 0);
+            for (int i =0; i < matrix.size(); i++)
+                for (int j = 0; j < matrix[0].size(); j++)
+                    if (j<i) matrix[i][j]=0;
+            if (matrix[0][0]==0) matrix[0][0]=1;
+        }
 
     }
 
