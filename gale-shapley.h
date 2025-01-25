@@ -151,4 +151,28 @@ int matching(int numb_pairs) {
     }
     return 0;
 }
+
+void matching(ofstream &output ,int numb_pairs) {
+    output<<"\\[\n";
+    output<<"\n\\begin{tabular}{cccccccc}\n";
+    for (int c='a'; c<('a'+numb_pairs); c++) {
+        output<<setw(10)<<"\\textbf{"<< naming[women[c].name]<<"} : &";
+        for (auto it : women[c].priorities) {
+            output<<setw(3) << it<<"   &";
+        }
+        output<<"\\\\\n";
+    }
+    output<<endl;
+    output<<"\\\\\n";
+
+    for (int c='a'; c<('a'+numb_pairs); c++) {
+        output<<setw(10)<<"\\textbf{"<< naming[men[c+7].name]<<"} : &";
+        for (auto it : men[c+7].priorities) {
+            output<<setw(3) << it<<"   &";
+        }
+        output<<"\\\\\n";
+    }
+    output<<"\n\\end{tabular}\n";
+    output<<"\\]\n";
+}
 #endif //GALE_SHAPLEY_H

@@ -55,7 +55,7 @@ class MATRIX {
             do {
                 for (auto &row : matrix)
                 for (auto &col : row)col = rand() % (UPPER_RAND-LOWER_RAND) + LOWER_RAND;
-            }while (det() != 0);
+            }while (det() == 0);
 
         }
         if (parameter == "rand-nice_inverse") {
@@ -111,6 +111,37 @@ class MATRIX {
             cout<<" ]\n";
         }
     }
+
+    void latex_display(ofstream &output,const vector<int> &b) {
+        output<<"\\[\n\\begin{bmatrix}\n";
+        for (auto &row : matrix) {
+            for (auto &col : row) {
+                output<<setw(4)<<col<<" & ";
+            }
+            output<<" \\\\\n ";
+
+        }
+        output<<"\\end{bmatrix}\n";
+        output<<"\\begin{bmatrix}\n";
+        for (auto row : b) {
+            output<<row<<"\\\\\n";
+        }
+        output<<"\\end{bmatrix}\n\\]\n";
+
+    }
+    void latex_display(ofstream &output) {
+        output<<"\\[\n\\begin{bmatrix}\n";
+        for (auto &row : matrix) {
+            for (auto &col : row) {
+                output<<setw(4)<<col<<" & ";
+            }
+            output<<" \\\\\n ";
+
+        }
+
+        output<<"\\end{bmatrix}\n\\]\n";
+
+    }
     int det() {
         return determinant(matrix);
     }
@@ -124,6 +155,9 @@ class MATRIX {
         else {
             for (int i =0 ; i < matrix.size(); i++)
                 x.push_back(rand() % (UPPER_RAND-LOWER_RAND) + LOWER_RAND);
+            for (auto i : x)
+                cout<<i<< " ";
+            cout<<"\n";
         }
 
         for (int i = 0; i < matrix.size(); i++) {

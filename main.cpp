@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <random>
 #include <windows.h>
@@ -13,46 +14,58 @@ void setTextColor(int color) {
     SetConsoleTextAttribute(hConsole, color);
 }
 
-
+ofstream output("adm_leaked_test.tex");
 static int priklad=1 ;
 
 void GAUSOVKA(int size , int seed) {
     srand(seed);
     setTextColor(2);
-    cout<<"\n\n" <<priklad++<<".Pomocou gausovej eliminacie upravte nasledovnu maticu na jednotkovu a najdite riesenie danej sustavy\n";
+    cout<<"\n\n" <<priklad<<".Pomocou gausovej eliminacie upravte nasledovnu maticu na jednotkovu a najdite riesenie danej sustavy\n";
     setTextColor(7);
     MATRIX<int> A(size, size,"rand-det_not_null");
     vector<int> b;
     A.assign_vector(b);
     A.display(b);
+
+    output<<"\n\n" <<priklad++<<"\\textbf{.Pomocou gausovej eliminacie upravte nasledovnu maticu na jednotkovu a najdite riesenie danej sustavy:}\n";
+    A.latex_display(output,b);
+    output<<"\n\\newpage\n";
 }
 
 void INVERZNA(int size, int seed) {
     srand(seed);
     setTextColor(2);
-    cout<<"\n\n" <<priklad++<<".Metodou inverznej matice najdite riesenie nasledujucej sustavy:\n";
+    cout<<"\n\n" <<priklad<<".Metodou inverznej matice najdite riesenie nasledujucej sustavy:\n";
     setTextColor(7);
     MATRIX<int> A(size, size,"rand-det_not_null");
     vector<int> b;
     A.assign_vector(b);
     A.display(b);
+
+    output<<"\n\n" <<priklad++<<"\\textbf{.Metodou inverznej matice najdite riesenie nasledujucej sustavy:}\n";
+    A.latex_display(output,b);
+    output<<"\n\\newpage\n";
 }
 
 void KRAMEROVO(int size, int seed) {
     srand(seed);
     setTextColor(2);
-    cout<<"\n\n" <<priklad++<<".Pomocou determinantov najdite riesenie nasledujucej sustavy: (kramerovo pravidlo)\n";
+    cout<<"\n\n" <<priklad<<".Pomocou determinantov najdite riesenie nasledujucej sustavy: (kramerovo pravidlo)\n";
     setTextColor(7);
     MATRIX<int> A(size, size,"rand-det_not_null");
     vector<int> b;
     A.assign_vector(b);
     A.display(b);
+
+    output<<"\n\n" <<priklad++<<"\\textbf{.Pomocou determinantov najdite riesenie nasledujucej sustavy: (kramerovo pravidlo)}\n";
+    A.latex_display(output,b);
+    output<<"\n\\newpage\n";
 }
 
 void EIGEN_VALUES(int size, int seed) {
     srand(seed);
     setTextColor(2);
-    cout<<"\n\n" <<priklad++<<".Najdite vlastne hodnoty a vlastne vektory nasledujucej matice: (nezabudni na t patri R)\n";
+    cout<<"\n\n" <<priklad<<".Najdite vlastne hodnoty a vlastne vektory nasledujucej matice: (nezabudni na t patri R)\n";
     setTextColor(7);
     MATRIX<int> A(size,size, "rand-nice_inverse");
     MATRIX<int> eigen(size,size);
@@ -60,12 +73,16 @@ void EIGEN_VALUES(int size, int seed) {
         eigen.matrix[i][i] = rand()%11-5;
     }
     (A*eigen*A.int_inverse() ).display();
+
+    output<<"\n\n" <<priklad++<<"\\textbf{.Najdite vlastne hodnoty a vlastne vektory nasledujucej matice: (nezabudni na t patri R)}\n";
+    A.latex_display(output);
+    output<<"\n\\newpage\n";
 }
 
 void LU_DECOMPOSITION(int size, int seed) {
     srand(seed);
     setTextColor(2);
-    cout<<"\n\n" <<priklad++<<".Metodou LU rozkladu najdite riesenie nasledovnej sustavy a determinant matice:\n";
+    cout<<"\n\n" <<priklad<<".Metodou LU rozkladu najdite riesenie nasledovnej sustavy a determinant matice:\n";
     setTextColor(7);
     MATRIX<int> S(size, size);
     do {
@@ -77,6 +94,10 @@ void LU_DECOMPOSITION(int size, int seed) {
     vector<int> b;
     S.assign_vector(b);
     S.display(b);
+
+    output<<"\n\n" <<priklad++<<"\\textbf{.Metodou LU rozkladu najdite riesenie nasledovnej sustavy a determinant matice:}\n";
+    S.latex_display(output,b);
+    output<<"\n\\newpage\n";
 }
 
 void TRANSFORMACIE(int pocet_transformacii, int seed) {
@@ -110,6 +131,14 @@ void TRANSFORMACIE(int pocet_transformacii, int seed) {
         cout<<"\nT"<<i+1<<" "<<transformacie[i]<<"\n ";
     }
 
+    output<<"\n\n" <<priklad++<<"\\textbf{.Mame definovovany domcek: }\n";
+    DOM.latex_display(output);
+    output<<"\n\\textbf{Postupne na nom vykoname postupne nasledovne transformacie:}\n";
+    for (int i = 0; i< pocet_transformacii; i++) {
+        output<<"\nT"<<i+1<<" "<<transformacie[i]<<"\n ";
+    }
+    output<<"\n\\newpage\n";
+
 }
 
 void GALE_SHAPLEY(int size , int seed) {
@@ -118,14 +147,24 @@ void GALE_SHAPLEY(int size , int seed) {
     cout<<"\n\n" <<priklad++<<".Pomocou gale-shapley algoritmu najdite co najlepsie pary, pre kazde pohlavie osobitne:\n";
     setTextColor(7);
     matching(size);
+
+    output<<"\n\n" <<priklad++<<"\\textbf{.Pomocou gale-shapley algoritmu najdite co najlepsie pary, pre kazde pohlavie osobitne:}\n";
+    matching(output,size);
+    output<<"\n\\newpage\n";
 }
 
 int main() {
+    // NEMENIT, nic okrem seedu !!!!!
+    output<<"\n\\documentclass{letter}\n\\pagestyle{empty}\n\\usepackage{amsmath}\n\\usepackage[a4paper, left=1in, right=1in, top=1in, bottom=1in]{geometry}\n\\begin{document}\n\\large\n";
     random_device rd;
     int seed = rd();
     seed=abs(seed)%10000000;
 
     cout<<"SEED: "<<seed<<"\n";
+    output<<"SEED: "<<seed<<"\n";
+
+    //uprav si podla seba
+
     GAUSOVKA(4,seed++);
     INVERZNA(4,seed++);
     KRAMEROVO(4,seed++);
@@ -133,5 +172,9 @@ int main() {
     LU_DECOMPOSITION(3,seed++);
     TRANSFORMACIE(3,seed++);
     GALE_SHAPLEY(7,seed++);
+
+    //taktiez nemenit
+    output<<"\\end{document}\n";
+    output.close();
     return 0;
 }
