@@ -155,9 +155,6 @@ class MATRIX {
         else {
             for (int i =0 ; i < matrix.size(); i++)
                 x.push_back(rand() % (UPPER_RAND-LOWER_RAND) + LOWER_RAND);
-            for (auto i : x)
-                cout<<i<< " ";
-            cout<<"\n";
         }
 
         for (int i = 0; i < matrix.size(); i++) {

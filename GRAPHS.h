@@ -9,7 +9,8 @@
 
 extern int priklad;
 extern ofstream output;
-
+extern ofstream odpovede;
+extern void setTextColor(int color);
 struct element_of_CP {
     char name;
     int value;
@@ -47,7 +48,9 @@ void GRAPH_TO_LATEX(ofstream &output,vector<VERTEX>V, vector<EDGE> E) {
 
 void KRITICKA_CESTA(int pocet_vrcholov, int seed) {
     srand(seed);
-    cout<<"\n\n"<<priklad<<". Najdite kriticku cestu:  \n";
+    setTextColor(2);
+    cout<<priklad<<". Kriticka cesta vygenerovana  \n";
+    setTextColor(7);
     vector<vector<element_of_CP>> elements;
     int per_layer = pocet_vrcholov/3;
     int tempe = pocet_vrcholov-2;
@@ -91,7 +94,7 @@ void KRITICKA_CESTA(int pocet_vrcholov, int seed) {
 
     }
 
-    output<<"\n\n" <<priklad++<<"\\textbf{.Najdite kriticku cestu:}\n";
+    output<<"\n\n" <<priklad++<<"\\textbf{.Navrhnite realizáciu projektu daného tabuľkou pre troch pracovníkov pomocou hľadania kritickej cesty: }\n";
     output<<"\n\\[\n\\begin{tabular}{ccc}\n";
     output<<"\\hline\n";
     output<<" Task & Time & Precedence \\\\ \n";
@@ -153,7 +156,12 @@ void KRITICKA_CESTA(int pocet_vrcholov, int seed) {
 
 void FORD_FULKERSON(vector<int> layers, int seed) {
     srand(seed);
-    output<<"\\textbf{"<<priklad++<<".Nájdite maximálnu realizáciu tokov prípustnosti vo vodovodnej siete metódou FordFulkersonovho algoritmu ak:}\n";
+
+    setTextColor(2);
+    cout<<priklad<<". Magicke potrubie vygenerovane (work in progress) \n";
+    setTextColor(7);
+
+    output<<"\\textbf{"<<priklad++<<".Nájdite maximálnu realizáciu tokov prípustnosti vo vodovodnej siete metódou Ford Fulkersonovho algoritmu ak:}\n";
     int count = 0;
     int numb_of_vertices=0;
     for (auto it: layers) {
@@ -162,7 +170,6 @@ void FORD_FULKERSON(vector<int> layers, int seed) {
     vector<VERTEX> V;
     vector<vector<VERTEX>> V_layers ;
     vector<EDGE> E;
-    cout<<"FORD_FULKERSON\n";
     for (int i = 0; i < layers.size(); i++) {
         int n = layers[i];
         vector<float> y_positions;
@@ -207,6 +214,10 @@ void FORD_FULKERSON(vector<int> layers, int seed) {
 
 void SPANNING_TREE(int number_of_vertices, int seed) {
     srand(seed);
+    setTextColor(2);
+    cout<<priklad<<". Kostra stromu vygenerovana. \n";
+    setTextColor(7);
+
     output<<"\\textbf{"<<priklad++<<".Nájdite kostru (spanning tree) v grafe pomocou Kruskalovho a pomocou Primovho algoritmu:}\n";
     vector<VERTEX> V(number_of_vertices);
     vector<EDGE> E;
