@@ -163,8 +163,9 @@ void matching(ofstream &output ,int numb_pairs) {
         output<<"\\\\\n";
     }
     output<<endl;
-    output<<"\\\\\n";
-
+    output<<"\n\\end{tabular}\n";
+    output<<"\\quad";
+    output<<"\n\\begin{tabular}{cccccccc}\n";
     for (int c='a'; c<('a'+numb_pairs); c++) {
         output<<setw(10)<<"\\textbf{"<< naming[men[c+7].name]<<"} : &";
         for (auto it : men[c+7].priorities) {
@@ -174,5 +175,10 @@ void matching(ofstream &output ,int numb_pairs) {
     }
     output<<"\n\\end{tabular}\n";
     output<<"\\]\n";
+}
+
+void clear_preferences() {
+    men_p.clear();
+    women_p.clear();
 }
 #endif //GALE_SHAPLEY_H

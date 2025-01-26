@@ -3,8 +3,10 @@
 #include <iostream>
 #include <random>
 #include <windows.h>
+
 #include "MATRIX.h"
 #include "gale-shapley.h"
+#include "GRAPHS.h"
 
 
 using namespace std;
@@ -15,7 +17,8 @@ void setTextColor(int color) {
 }
 
 ofstream output("adm_leaked_test.tex");
-static int priklad=1 ;
+
+int priklad=1 ;
 
 void GAUSOVKA(int size , int seed) {
     srand(seed);
@@ -103,7 +106,7 @@ void LU_DECOMPOSITION(int size, int seed) {
 void TRANSFORMACIE(int pocet_transformacii, int seed) {
     srand(seed);
     setTextColor(2);
-    cout<<"\n\n" <<priklad++<<".Mame definovovany domcek: \n";
+    cout<<"\n\n" <<priklad<<".Mame definovovany domcek: \n";
     setTextColor(7);
     MATRIX<int> DOM(5,2);
     DOM.matrix={
@@ -144,18 +147,19 @@ void TRANSFORMACIE(int pocet_transformacii, int seed) {
 void GALE_SHAPLEY(int size , int seed) {
     srand(seed);
     setTextColor(2);
-    cout<<"\n\n" <<priklad++<<".Pomocou gale-shapley algoritmu najdite co najlepsie pary, pre kazde pohlavie osobitne:\n";
+    cout<<"\n\n" <<priklad<<".Pomocou gale-shapley algoritmu najdite co najlepsie pary, pre kazde pohlavie osobitne:\n";
     setTextColor(7);
     matching(size);
 
     output<<"\n\n" <<priklad++<<"\\textbf{.Pomocou gale-shapley algoritmu najdite co najlepsie pary, pre kazde pohlavie osobitne:}\n";
     matching(output,size);
     output<<"\n\\newpage\n";
+    clear_preferences();
 }
 
 int main() {
     // NEMENIT, nic okrem seedu !!!!!
-    output<<"\n\\documentclass{letter}\n\\pagestyle{empty}\n\\usepackage{amsmath}\n\\usepackage[a4paper, left=1in, right=1in, top=1in, bottom=1in]{geometry}\n\\begin{document}\n\\large\n";
+    output<<"\n\\documentclass{letter}\n\\pagestyle{empty}\n\\usepackage{tikz-network}\n\\usepackage{amsmath}\n\\usepackage[a4paper, left=1in, right=1in, top=1in, bottom=1in]{geometry}\n\\begin{document}\n\\large\n";
     random_device rd;
     int seed = rd();
     seed=abs(seed)%10000000;
@@ -164,14 +168,16 @@ int main() {
     output<<"SEED: "<<seed<<"\n";
 
     //uprav si podla seba
-
-    GAUSOVKA(4,seed++);
-    INVERZNA(4,seed++);
-    KRAMEROVO(4,seed++);
-    EIGEN_VALUES(3,seed++);
-    LU_DECOMPOSITION(3,seed++);
-    TRANSFORMACIE(3,seed++);
-    GALE_SHAPLEY(7,seed++);
+        GAUSOVKA(4,seed++);
+        INVERZNA(4,seed++);
+        KRAMEROVO(4,seed++);
+        EIGEN_VALUES(3,seed++);
+        LU_DECOMPOSITION(3,seed++);
+        TRANSFORMACIE(3,seed++);
+        GALE_SHAPLEY(7,seed++);
+        KRITICKA_CESTA(12, seed++);
+        FORD_FULKERSON({1,3,3,3,1},seed++);
+        SPANNING_TREE(20,seed++);
 
     //taktiez nemenit
     output<<"\\end{document}\n";
