@@ -16,21 +16,55 @@ struct element_of_CP {
     vector<char> prepositions;
 };
 
+//WOHOOO TOKY A GRAPH GENERATOR
+
+struct EDGE {
+    string label;
+    string parameters;
+    char end_points[2];
+};
+
+struct VERTEX {
+    char name;
+    char label;
+    string parameters;
+    float x;
+    float y;
+};
+
+//\Vertex[label=d, x=6, y=2]{D}
+
+//\Edge[label=(0.6), position=above, Direct](C)(D)
+
+void GRAPH_TO_LATEX(ofstream &output,vector<VERTEX>V, vector<EDGE> E) {
+    output<<"\n\\begin{tikzpicture}\n";
+    for (auto it: V)
+        output<<"\\Vertex[label="<<it.label<<", x="<<it.x<<",y="<<it.y<<","<<it.parameters<<"] {"<<it.name<<"} \n";
+    for (auto it : E)
+        output<<"\\Edge[label="<<it.label<<","<<it.parameters<<"]("<<it.end_points[0]<<")("<<it.end_points[1]<<") \n";
+    output<<"\n\\end{tikzpicture}\n";
+}
+
 void KRITICKA_CESTA(int pocet_vrcholov, int seed) {
     srand(seed);
     cout<<"\n\n"<<priklad<<". Najdite kriticku cestu:  \n";
     vector<vector<element_of_CP>> elements;
     int per_layer = pocet_vrcholov/3;
-    int temp = pocet_vrcholov-2;
+    int tempe = pocet_vrcholov-2;
     vector<int> layers;
 
     layers.push_back(1);
-    while (temp>=0) {
-        int x = (temp>=per_layer)? per_layer : temp%(per_layer-1)+1;
-        layers.push_back( x );
-        temp-=x;
+    while (tempe > 0) {
+        int x = (tempe > per_layer) ? per_layer : tempe;
+        if (tempe - x == 1) x--;
+
+
+        layers.push_back(x);
+        tempe -= x;
     }
-    layers.push_back(1);
+    if (layers.back() != 1) {
+        layers.push_back(1);
+    }
 
     elements.push_back({{'a', 0, {}}});
     int count=1;
@@ -72,40 +106,7 @@ void KRITICKA_CESTA(int pocet_vrcholov, int seed) {
     }
     output<<"\\hline\n";
     output<<"\n\\]\n\\end{tabular}\n";
-    output<<"\n\\newpage\n";
-}
-
-//WOHOOO TOKY A GRAPH GENERATOR
-
-struct EDGE {
-    string label;
-    string parameters;
-    char end_points[2];
-};
-
-struct VERTEX {
-    char name;
-    char label;
-    string parameters;
-    float x;
-    float y;
-};
-
-//\Vertex[label=d, x=6, y=2]{D}
-//\Edge[label=(0.6), position=above, Direct](C)(D)
-void GRAPH_TO_LATEX(ofstream &output,vector<VERTEX>V, vector<EDGE> E) {
-    output<<"\n\\begin{tikzpicture}\n";
-    for (auto it: V)
-        output<<"\\Vertex[label="<<it.label<<", x="<<it.x<<",y="<<it.y<<","<<it.parameters<<"] {"<<it.name<<"} \n";
-    for (auto it : E)
-        output<<"\\Edge[label="<<it.label<<","<<it.parameters<<"]("<<it.end_points[0]<<")("<<it.end_points[1]<<") \n";
-    output<<"\n\\end{tikzpicture}\n";
-}
-//
-void FORD_FULKERSON(vector<int> layers, int seed) {
-    srand(seed);
-    output<<"\\textbf{"<<priklad++<<".Nájdite maximálnu realizáciu tokov prípustnosti vo vodovodnej siete metódou FordFulkersonovho algoritmu ak:}\n";
-    int count = 0;
+    count = 0;
     int numb_of_vertices=0;
     for (auto it: layers) {
         numb_of_vertices +=it;
@@ -113,8 +114,7 @@ void FORD_FULKERSON(vector<int> layers, int seed) {
     vector<VERTEX> V;
     vector<vector<VERTEX>> V_layers ;
     vector<EDGE> E;
-    cout<<"FORD_FULKERSON\n";
-    int index=0;
+
     for (int i = 0; i < layers.size(); i++) {
         int n = layers[i];
         vector<float> y_positions;
@@ -129,6 +129,56 @@ void FORD_FULKERSON(vector<int> layers, int seed) {
                     y_positions.push_back(-offset);
             }
         }
+        sort(y_positions.begin(), y_positions.end());
+        reverse(y_positions.begin(), y_positions.end());
+        vector<VERTEX> temp(layers[i]);
+        for (int j = 0; j < n; j++) {
+            temp[j].name = (char)('A' + (count));
+            temp[j].label = (char)('a' + (count++));
+            temp[j].parameters = "";
+            temp[j].x = i * 3;
+            temp[j].y = y_positions[j];
+        }
+        V_layers.push_back(temp);
+    }
+
+    for (const auto it: V_layers) {
+        for (const auto it2: it) {
+            V.push_back(it2);
+        }
+    }
+    GRAPH_TO_LATEX(output,V,E);
+    output<<"\n\\newpage\n";
+}
+
+void FORD_FULKERSON(vector<int> layers, int seed) {
+    srand(seed);
+    output<<"\\textbf{"<<priklad++<<".Nájdite maximálnu realizáciu tokov prípustnosti vo vodovodnej siete metódou FordFulkersonovho algoritmu ak:}\n";
+    int count = 0;
+    int numb_of_vertices=0;
+    for (auto it: layers) {
+        numb_of_vertices +=it;
+    }
+    vector<VERTEX> V;
+    vector<vector<VERTEX>> V_layers ;
+    vector<EDGE> E;
+    cout<<"FORD_FULKERSON\n";
+    for (int i = 0; i < layers.size(); i++) {
+        int n = layers[i];
+        vector<float> y_positions;
+        if (n == 1) {
+            y_positions.push_back(0);
+        } else {
+            for (int j = 0; j < n; j++) {
+                float offset = 2*((j + 1)/2); //<----spacing
+                if (j % 2 == 0)
+                    y_positions.push_back(offset);
+                else
+                    y_positions.push_back(-offset);
+            }
+        }
+        sort(y_positions.begin(), y_positions.end());
+        reverse(y_positions.begin(), y_positions.end());
         vector<VERTEX> temp(layers[i]);
         for (int j = 0; j < n; j++) {
             temp[j].name = (char)('A' + (count));
@@ -242,5 +292,41 @@ void SPANNING_TREE(int number_of_vertices, int seed) {
     GRAPH_TO_LATEX(output, V, E);
 }
 
+void AUGMENTING_PATH(int size , int seed) {
+    srand(seed);
+    output<<"Augmeniting path\n";
+    vector<VERTEX> V;
+    vector<VERTEX> A(size+1),B(size);
+    vector<EDGE> E( size/2+1);
+    int count = 0;
+    for (int i =0; i < size+1; i++) {
+        A[i].name = (char)('A' + count++);
+        A[i].parameters = "";
+        A[i].x =3*i -1.5 ;
+        A[i].y =0 ;
+    }
+    for (int i =0; i < size; i++) {
+        B[i].name = (char)('A' + count++);
+        B[i].parameters = "";
+        B[i].x =3*i ;
+        B[i].y =-3 ;
+    }
+    for (auto it : A)
+        V.push_back(it);
+    for (auto it : B)
+        V.push_back(it);
+    shuffle(A.begin(), A.end(), default_random_engine(seed));
+    shuffle(B.begin(), B.end(), default_random_engine(seed));
+    for (int i =0 ; i < size/2+1 ; i++) {
+        E[i].end_points[0]= A[i].name ;
+        E[i].end_points[1] = B[i].name ;
+    }
+    GRAPH_TO_LATEX(output, V, E);
+
+}
+
+void PAIRING(int size ,int seed) {
+
+}
 
 #endif
