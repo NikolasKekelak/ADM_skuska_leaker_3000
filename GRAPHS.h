@@ -3,7 +3,7 @@
 //
 #include "MATRIX.h"
 #include <set>
-
+#include <map>
 #ifndef GRAPHS_H
 #define GRAPHS_H
 
@@ -212,20 +212,196 @@ void FORD_FULKERSON(vector<int> layers, int seed) {
     output<<"\n\\newpage\n";
 }
 
-void SPANNING_TREE(int number_of_vertices, int seed) {
+void AUGMENTING_PATH(int size , int seed) {
     srand(seed);
     setTextColor(2);
-    cout<<priklad<<". Kostra stromu vygenerovana. \n";
+    cout<<priklad<<".Augmnenting path generated: https://www.youtube.com/watch?v=C9c8zEZXboA";
+    setTextColor(7);
+    output<<"\n\n" <<priklad++<<"\\textbf{.Pomocou augmenting path algoritmu najdite čo najlepšie párovanie: }\n";
+    vector<VERTEX> V;
+    vector<VERTEX> A(size),B(size);
+    vector<EDGE> E;
+
+    map<char,bool> B_taken;
+    int count = 0;
+    for (int i =0; i < size; i++) {
+        A[i].name = (char)('A' + count++);
+        A[i].parameters = "";
+        A[i].x =3*i;
+        A[i].y =0 ;
+    }
+    for (int i =0; i < size; i++) {
+        B[i].name = (char)('A' + count++);
+        B[i].parameters = "";
+        B[i].x =3*i ;
+        B[i].y =-5 ;
+    }
+    for (auto it : A)
+        V.push_back(it);
+    for (auto it : B)
+        V.push_back(it);
+    shuffle(A.begin(), A.end(), default_random_engine(seed));
+    shuffle(B.begin(), B.end(), default_random_engine(seed));
+    for (int i =0 ; i < size ; i++) {
+        shuffle(B.begin(), B.end(), default_random_engine(seed));
+        for (int j = 0; j < size; j++) {
+            if ( rand()%2 ) {
+                EDGE e;
+                e.end_points[0]=A[i].name;
+                e.end_points[1]=B[j].name;
+                if (rand()%2 && B_taken.find(B[j].name) == B_taken.end() && B_taken.find(A[i].name) == B_taken.end()  ) {
+                    B_taken[B[j].name] = true;
+                    B_taken[A[i].name] = true;
+                    e.parameters="color=blue";
+                }
+                E.push_back(e);
+            }
+
+        }
+    }
+    GRAPH_TO_LATEX(output, V, E);
+    output<<"\n\\newpage\n";
+}
+
+void PAIRING(int size ,int seed) {
+
+
+
+}
+
+void DJIKSTRA(int number_of_vertices, int seed) {
+    srand(seed);
+    setTextColor(2);
+    cout << priklad << ". Djikstra vygenerovana \n";
     setTextColor(7);
 
-    output<<"\\textbf{"<<priklad++<<".Nájdite kostru (spanning tree) v grafe pomocou Kruskalovho a pomocou Primovho algoritmu:}\n";
+    output << "\\textbf{" << priklad++ << ". Pomocou Djikstrovho algoritmu zistite , ktorý bod je najdalej od bodu a: }\n";
     vector<VERTEX> V(number_of_vertices);
     vector<EDGE> E;
     set<pair<char, char>> existing_edges;
-    float proximity_threshold = 3.0;
+    float proximity_threshold = 4;
     int count = 0;
-    float min_distance = 1.8;
+    float min_distance = 2;
 
+    // Generate vertices with constraints
+    for (auto& it : V) {
+        bool valid_position;
+        do {
+            valid_position = true;
+            // Generate random position
+            it.x = ((rand() / (float)RAND_MAX)) * 10.0;
+            it.y = ((rand() / (float)RAND_MAX)) * 10.0;
+
+            for (const auto& v : V) {
+                if (&v == &it) continue;
+                float distance = sqrt(pow(it.x - v.x, 2) + pow(it.y - v.y, 2));
+                if (distance < min_distance) {
+                    valid_position = false;
+                    break;
+                }
+            }
+        } while (!valid_position);
+
+        it.label = (char)('A' + count);
+        it.name = (char)('A' + count++);
+        it.parameters = "color=green";
+    }
+
+    // Generate edges with "no passing through vertices" constraint
+    for (auto& it : V) {
+        vector<pair<int, float>> close_vertices;
+
+        // Find close vertices
+        for (int i = 0; i < V.size(); i++) {
+            if (&V[i] == &it) continue;
+            float distance = sqrt(pow(it.x - V[i].x, 2) + pow(it.y - V[i].y, 2));
+            if (distance <= proximity_threshold) {
+                close_vertices.push_back({i, distance});
+            }
+        }
+
+        sort(close_vertices.begin(), close_vertices.end(),
+             [](const pair<int, float>& a, const pair<int, float>& b) {
+                 return a.second < b.second;
+             });
+
+        vector<int> selected_vertices;
+
+        // Select up to 3 closest vertices
+        for (int i = 0; i < close_vertices.size(); i++) {
+            if (selected_vertices.size() < 3) {
+                selected_vertices.push_back(close_vertices[i].first);
+            }
+        }
+
+        // Ensure minimum number of edges
+        if (selected_vertices.size() < 2) {
+            for (int i = 0; i < V.size(); i++) {
+                if (i != &it - &V[0] && find(selected_vertices.begin(), selected_vertices.end(), i) == selected_vertices.end()) {
+                    selected_vertices.push_back(i);
+                    if (selected_vertices.size() == 3) break;
+                }
+            }
+        }
+
+        // Add edges with intersection check
+        for (int idx : selected_vertices) {
+            char start = it.name;
+            char end = V[idx].name;
+
+            // Ensure edges don’t intersect other vertices
+            bool intersects = false;
+            for (const auto& v : V) {
+                if (v.name == start || v.name == end) continue;
+
+                // Check if vertex lies on the line segment
+                float crossproduct = (v.y - it.y) * (V[idx].x - it.x) - (v.x - it.x) * (V[idx].y - it.y);
+                if (fabs(crossproduct) > 1e-6) continue;
+
+                float dotproduct = (v.x - it.x) * (V[idx].x - it.x) + (v.y - it.y) * (V[idx].y - it.y);
+                if (dotproduct < 0) continue;
+
+                float squaredlength = pow(V[idx].x - it.x, 2) + pow(V[idx].y - it.y, 2);
+                if (dotproduct > squaredlength) continue;
+
+                intersects = true;
+                break;
+            }
+
+            if (!intersects && start != end &&
+                existing_edges.count({start, end}) == 0 &&
+                existing_edges.count({end, start}) == 0) {
+                EDGE edge;
+                edge.label = std::to_string(1 + rand() % 12);
+                edge.parameters = "";
+                edge.end_points[0] = start;
+                edge.end_points[1] = end;
+
+                E.push_back(edge);
+                existing_edges.insert({start, end});
+            }
+        }
+    }
+
+    GRAPH_TO_LATEX(output, V, E);
+    output<<"\n\\newpage\n";
+}
+
+void SPANNING_TREE(int number_of_vertices, int seed) {
+    srand(seed);
+    setTextColor(2);
+    cout << priklad << ". Kostra grafu vygenerovana \n";
+    setTextColor(7);
+
+    output << "\\textbf{" << priklad++ << ". Nájdite kostru (spanning tree) v grafe pomocou Kruskalovho a pomocou Primovho algoritmu: }\n";
+    vector<VERTEX> V(number_of_vertices);
+    vector<EDGE> E;
+    set<pair<char, char>> existing_edges;
+    float proximity_threshold = 4;
+    int count = 0;
+    float min_distance = 2;
+
+    // Generate vertices with constraints
     for (auto& it : V) {
         bool valid_position;
         do {
@@ -249,10 +425,11 @@ void SPANNING_TREE(int number_of_vertices, int seed) {
         it.parameters = "color=orange";
     }
 
+    // Generate edges with "no passing through vertices" constraint
     for (auto& it : V) {
-        vector<std::pair<int, float>> close_vertices;
+        vector<pair<int, float>> close_vertices;
 
-
+        // Find close vertices
         for (int i = 0; i < V.size(); i++) {
             if (&V[i] == &it) continue;
             float distance = sqrt(pow(it.x - V[i].x, 2) + pow(it.y - V[i].y, 2));
@@ -268,11 +445,14 @@ void SPANNING_TREE(int number_of_vertices, int seed) {
 
         vector<int> selected_vertices;
 
+        // Select up to 3 closest vertices
         for (int i = 0; i < close_vertices.size(); i++) {
             if (selected_vertices.size() < 3) {
                 selected_vertices.push_back(close_vertices[i].first);
             }
         }
+
+        // Ensure minimum number of edges
         if (selected_vertices.size() < 2) {
             for (int i = 0; i < V.size(); i++) {
                 if (i != &it - &V[0] && find(selected_vertices.begin(), selected_vertices.end(), i) == selected_vertices.end()) {
@@ -282,10 +462,32 @@ void SPANNING_TREE(int number_of_vertices, int seed) {
             }
         }
 
+        // Add edges with intersection check
         for (int idx : selected_vertices) {
             char start = it.name;
             char end = V[idx].name;
-            if (start != end && existing_edges.count({start, end}) == 0 &&
+
+            // Ensure edges don’t intersect other vertices
+            bool intersects = false;
+            for (const auto& v : V) {
+                if (v.name == start || v.name == end) continue;
+
+                // Check if vertex lies on the line segment
+                float crossproduct = (v.y - it.y) * (V[idx].x - it.x) - (v.x - it.x) * (V[idx].y - it.y);
+                if (fabs(crossproduct) > 1e-6) continue;
+
+                float dotproduct = (v.x - it.x) * (V[idx].x - it.x) + (v.y - it.y) * (V[idx].y - it.y);
+                if (dotproduct < 0) continue;
+
+                float squaredlength = pow(V[idx].x - it.x, 2) + pow(V[idx].y - it.y, 2);
+                if (dotproduct > squaredlength) continue;
+
+                intersects = true;
+                break;
+            }
+
+            if (!intersects && start != end &&
+                existing_edges.count({start, end}) == 0 &&
                 existing_edges.count({end, start}) == 0) {
                 EDGE edge;
                 edge.label = std::to_string(1 + rand() % 12);
@@ -301,43 +503,7 @@ void SPANNING_TREE(int number_of_vertices, int seed) {
 
     GRAPH_TO_LATEX(output, V, E);
     GRAPH_TO_LATEX(output, V, E);
-}
-
-void AUGMENTING_PATH(int size , int seed) {
-    srand(seed);
-    output<<"Augmeniting path\n";
-    vector<VERTEX> V;
-    vector<VERTEX> A(size+1),B(size);
-    vector<EDGE> E( size/2+1);
-    int count = 0;
-    for (int i =0; i < size+1; i++) {
-        A[i].name = (char)('A' + count++);
-        A[i].parameters = "";
-        A[i].x =3*i -1.5 ;
-        A[i].y =0 ;
-    }
-    for (int i =0; i < size; i++) {
-        B[i].name = (char)('A' + count++);
-        B[i].parameters = "";
-        B[i].x =3*i ;
-        B[i].y =-3 ;
-    }
-    for (auto it : A)
-        V.push_back(it);
-    for (auto it : B)
-        V.push_back(it);
-    shuffle(A.begin(), A.end(), default_random_engine(seed));
-    shuffle(B.begin(), B.end(), default_random_engine(seed));
-    for (int i =0 ; i < size/2+1 ; i++) {
-        E[i].end_points[0]= A[i].name ;
-        E[i].end_points[1] = B[i].name ;
-    }
-    GRAPH_TO_LATEX(output, V, E);
-
-}
-
-void PAIRING(int size ,int seed) {
-
+    output<<"\n\\newpage\n";
 }
 
 #endif

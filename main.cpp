@@ -192,7 +192,7 @@ void GALE_SHAPLEY(int size , int seed) {
     find_pairing(men, women,size);
     setTextColor(7);
 
-    output<<"\n\n" <<priklad++<<"\\textbf{.Pomocou gale-shapley algoritmu najdite co najlepsie pary, pre kazde pohlavie osobitne:}\n";
+    output<<"\n\n" <<priklad++<<"\\textbf{.Použite Gale-Shapley algoritmus pre určenie najlepšieho možného párovania v prípade preferencií zadaných tabuľkou}\n\na) V prípade, že muž si vyberá ako prvý.\n\nb) V prípade, že žena si vyberá ako prvá.\n\nPorovnajte oba výsledky\n";
     matching(output,size);
     output<<"\n\\newpage\n";
     clear_preferences();
@@ -219,7 +219,8 @@ int main() {
         KRITICKA_CESTA(14, seed++);
         FORD_FULKERSON({1,3,3,3,1},seed++);
         SPANNING_TREE(20,seed++);
-
+        DJIKSTRA(20, seed++);
+        AUGMENTING_PATH(5,seed++);
 
     //taktiez nemenit
     output<<"\\end{document}\n";
