@@ -37,8 +37,8 @@ struct VERTEX {
 
 //\Edge[label=(0.6), position=above, Direct](C)(D)
 
-void GRAPH_TO_LATEX(ofstream &output,vector<VERTEX>V, vector<EDGE> E) {
-    output<<"\n\\begin{tikzpicture}\n";
+void GRAPH_TO_LATEX(ofstream &output,vector<VERTEX>V, vector<EDGE> E, string scale) {
+    output<<"\n\\begin{tikzpicture}"<<scale<<"\n";
     for (auto it: V)
         output<<"\\Vertex[label="<<it.label<<", x="<<it.x<<",y="<<it.y<<","<<it.parameters<<"] {"<<it.name<<"} \n";
     for (auto it : E)
@@ -49,7 +49,7 @@ void GRAPH_TO_LATEX(ofstream &output,vector<VERTEX>V, vector<EDGE> E) {
 void KRITICKA_CESTA(int pocet_vrcholov, int seed) {
     srand(seed);
     setTextColor(2);
-    cout<<priklad<<". Kriticka cesta vygenerovana  \n";
+    odpovede<<priklad<<". Kriticka cesta vygenerovana:  https://www.youtube.com/watch?v=uCR2x-VyxLg\n";
     setTextColor(7);
     vector<vector<element_of_CP>> elements;
     int per_layer = pocet_vrcholov/3;
@@ -84,15 +84,6 @@ void KRITICKA_CESTA(int pocet_vrcholov, int seed) {
         elements.push_back(temp);
     }
     elements[layers.size()-1][0].value=0;
-    for (auto it: elements) {
-        for (auto it2: it) {
-            cout<<" | "<<it2.name<<"  | "<<it2.value<<" | ";
-            for (auto preposition: it2.prepositions)
-                cout<<preposition<<" ";
-            cout<<" | \n";
-        }
-
-    }
 
     output<<"\n\n" <<priklad++<<"\\textbf{.Navrhnite realizáciu projektu daného tabuľkou pre troch pracovníkov pomocou hľadania kritickej cesty: }\n";
     output<<"\n\\[\n\\begin{tabular}{ccc}\n";
@@ -150,15 +141,14 @@ void KRITICKA_CESTA(int pocet_vrcholov, int seed) {
             V.push_back(it2);
         }
     }
-    GRAPH_TO_LATEX(output,V,E);
+    GRAPH_TO_LATEX(output,V,E,"[scale=0.8]");
     output<<"\n\\newpage\n";
 }
 
 void FORD_FULKERSON(vector<int> layers, int seed) {
     srand(seed);
-
     setTextColor(2);
-    cout<<priklad<<". Magicke potrubie vygenerovane (work in progress) \n";
+    odpovede<<priklad<<". Magicke potrubie vygenerovane:  https://www.youtube.com/watch?v=Tl90tNtKvxs";
     setTextColor(7);
 
     output<<"\\textbf{"<<priklad++<<".Nájdite maximálnu realizáciu tokov prípustnosti vo vodovodnej siete metódou Ford Fulkersonovho algoritmu ak:}\n";
@@ -167,6 +157,7 @@ void FORD_FULKERSON(vector<int> layers, int seed) {
     for (auto it: layers) {
         numb_of_vertices +=it;
     }
+    MATRIX<int> A(numb_of_vertices, numb_of_vertices);
     vector<VERTEX> V;
     vector<vector<VERTEX>> V_layers ;
     vector<EDGE> E;
@@ -186,6 +177,7 @@ void FORD_FULKERSON(vector<int> layers, int seed) {
         }
         sort(y_positions.begin(), y_positions.end());
         reverse(y_positions.begin(), y_positions.end());
+
         vector<VERTEX> temp(layers[i]);
         for (int j = 0; j < n; j++) {
             temp[j].name = (char)('A' + (count));
@@ -194,28 +186,88 @@ void FORD_FULKERSON(vector<int> layers, int seed) {
             temp[j].x = i * 3;
             temp[j].y = y_positions[j];
             for (int k = 0; k< layers[i-1]; k++) {
-                E.push_back(
-                    {"(0.0)", "Direct, position=above",{V_layers[i-1][k].name,temp[j].name }}
-                    );
+                A.matrix[temp[j].name-'A'][V_layers[i-1][k].name-'A'] = rand()%5+1;
             }
         }
         V_layers.push_back(temp);
     }
+
     for (const auto it: V_layers) {
         for (const auto it2: it) {
             V.push_back(it2);
         }
     }
+
+    bool approved;
+    bool change;
+    do{
+    do {
+        approved=true;
+        change = false;
+        for (int i = 0; i < numb_of_vertices; i++) {
+            int sum_row = 0;
+            int sum_col = 0;
+            vector<int> row_coord;
+
+            do {
+                sum_row = 0;
+                sum_col = 0;
+                row_coord.clear();
+
+                for (int j = 0; j < numb_of_vertices; j++) {
+                    sum_row += A.matrix[i][j];
+                    if (A.matrix[i][j] != 0)
+                        row_coord.push_back(j);
+
+                    if (numb_of_vertices > 0)
+                        sum_col += A.matrix[j][i];
+                }
+
+                if (sum_row ==0 || sum_col==0) {break;}
+                if (sum_row != sum_col) {
+                    A.matrix[i][row_coord[rand() % row_coord.size()]] += (sum_row < sum_col) ? 1 : -1;
+                    change = true;
+                }
+
+            } while (sum_row != sum_col);
+        }
+        for (int i =0; i<numb_of_vertices-1; i++) {
+            int sum =0;
+            for (int j = 0; j < numb_of_vertices; j++) {
+                sum += A.matrix[j][i];
+            }
+            if (sum==0) approved=false;
+        }
+    } while (change);
+    }while (0);
+    odpovede << "\n";
+
+    // Reset the specific element to 0 as required
+    A.matrix[0][numb_of_vertices - 1] = 0;
+    for (auto i = 0; i< numb_of_vertices; i++ ) {
+        for (auto j=0 ;j < numb_of_vertices; j++) {
+            if (A.matrix[i][j]!=0) {
+                EDGE e;
+                e.parameters="Direct,distance=0.2";
+                e.label="("+ to_string(A.matrix[i][j]) +"."+ to_string(A.matrix[i][j]+rand()%3+1) +")";
+                e.end_points[0]= j+'A';
+                e.end_points[1]= i+'A';
+                E.push_back(e);
+            }
+        }
+    }
     V[0].label = 'S';
     V[layers.size()-1].label = 'E';
-    GRAPH_TO_LATEX(output,V,E);
+    GRAPH_TO_LATEX(output,V,E, "[scale=1.2]");
+    GRAPH_TO_LATEX(output,V,E, "[scale=1.2]");
+    GRAPH_TO_LATEX(output,V,E, "[scale=1.2]");
     output<<"\n\\newpage\n";
 }
 
 void AUGMENTING_PATH(int size , int seed) {
     srand(seed);
     setTextColor(2);
-    cout<<priklad<<".Augmnenting path generated: https://www.youtube.com/watch?v=C9c8zEZXboA";
+    odpovede<<priklad<<".Augmnenting path generated: https://www.youtube.com/watch?v=C9c8zEZXboA";
     setTextColor(7);
     output<<"\n\n" <<priklad++<<"\\textbf{.Pomocou augmenting path algoritmu najdite čo najlepšie párovanie: }\n";
     vector<VERTEX> V;
@@ -252,14 +304,14 @@ void AUGMENTING_PATH(int size , int seed) {
                 if (rand()%2 && B_taken.find(B[j].name) == B_taken.end() && B_taken.find(A[i].name) == B_taken.end()  ) {
                     B_taken[B[j].name] = true;
                     B_taken[A[i].name] = true;
-                    e.parameters="color=blue";
+                    e.parameters="color=cyan";
                 }
                 E.push_back(e);
             }
 
         }
     }
-    GRAPH_TO_LATEX(output, V, E);
+    GRAPH_TO_LATEX(output, V, E, "[scale=1.2]");
     output<<"\n\\newpage\n";
 }
 
@@ -272,7 +324,7 @@ void PAIRING(int size ,int seed) {
 void DJIKSTRA(int number_of_vertices, int seed) {
     srand(seed);
     setTextColor(2);
-    cout << priklad << ". Djikstra vygenerovana \n";
+    odpovede << priklad << ". Djikstra vygenerovana: https://www.youtube.com/watch?v=bZkzH5x0SKU \n";
     setTextColor(7);
 
     output << "\\textbf{" << priklad++ << ". Pomocou Djikstrovho algoritmu zistite , ktorý bod je najdalej od bodu a: }\n";
@@ -383,14 +435,14 @@ void DJIKSTRA(int number_of_vertices, int seed) {
         }
     }
 
-    GRAPH_TO_LATEX(output, V, E);
+    GRAPH_TO_LATEX(output, V, E, "[scale=1]");
     output<<"\n\\newpage\n";
 }
 
 void SPANNING_TREE(int number_of_vertices, int seed) {
     srand(seed);
     setTextColor(2);
-    cout << priklad << ". Kostra grafu vygenerovana \n";
+    odpovede << priklad << ". Kostra grafu vygenerovana:\n kruskal: https://www.youtube.com/watch?v=71UQH7Pr9kU \n prim: https://www.youtube.com/watch?v=cplfcGZmX7I \n";
     setTextColor(7);
 
     output << "\\textbf{" << priklad++ << ". Nájdite kostru (spanning tree) v grafe pomocou Kruskalovho a pomocou Primovho algoritmu: }\n";
@@ -501,8 +553,8 @@ void SPANNING_TREE(int number_of_vertices, int seed) {
         }
     }
 
-    GRAPH_TO_LATEX(output, V, E);
-    GRAPH_TO_LATEX(output, V, E);
+    GRAPH_TO_LATEX(output, V, E, "[scale=1]");
+    GRAPH_TO_LATEX(output, V, E, "[scale=1]");
     output<<"\n\\newpage\n";
 }
 

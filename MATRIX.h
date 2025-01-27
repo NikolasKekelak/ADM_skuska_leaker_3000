@@ -10,7 +10,7 @@ using namespace std;
 #define UPPER_RAND 5
 #define LOWER_RAND -5
 #define v_MATRIX vector<vector<int>>
-
+extern ofstream odpovede;
 v_MATRIX minor(v_MATRIX input, int row, int col) {
     v_MATRIX result;
     for (int i = 0; i < input.size(); i++) {
@@ -92,23 +92,23 @@ class MATRIX {
 
     void display() {
         for (auto &row : matrix) {
-            cout<<" [ ";
+            odpovede<<" [ ";
             for (auto &col : row) {
-                cout<<setw(4)<<col;
+                odpovede<<setw(4)<<col;
             }
-            cout<<" ]\n";
+            odpovede<<" ]\n";
         }
     }
     void display(const vector<int> &b) {
         int i =0;
         for (auto &row : matrix) {
-            cout<<" [ ";
+            odpovede<<" [ ";
             for (auto &col : row) {
-                cout<<setw(4)<<col;
+                odpovede<<setw(4)<<col;
             }
-            cout<<" ][ ";
-            cout<<setw(4)<<b[i++];
-            cout<<" ]\n";
+            odpovede<<" ][ ";
+            odpovede<<setw(4)<<b[i++];
+            odpovede<<" ]\n";
         }
     }
 

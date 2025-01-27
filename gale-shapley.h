@@ -18,6 +18,8 @@
 
 using namespace std;
 
+extern ofstream odpovede;
+
 unordered_map<char, string> naming=
     {
         {'a', "Adela"},
@@ -101,9 +103,9 @@ void find_pairing(INPUT FIRST, INPUT SECOND, int numb_of_pairs) {
 
     }
     //vypis vysledku
-    cout<<"\n";
+    odpovede<<"\n";
     for (auto it : FIRST) {
-        cout<<naming[iterated.name]<<" - "<< naming[iterated.current_partner] <<"\n";
+        odpovede<<naming[iterated.name]<<" - "<< naming[iterated.current_partner] <<"\n";
     }
 }
 
@@ -134,21 +136,6 @@ int matching(int numb_pairs) {
 
     //vypis
 
-    for (int c='a'; c<('a'+numb_pairs); c++) {
-        cout<<setw(10)<< naming[women[c].name]<<" : ";
-        for (auto it : women[c].priorities) {
-            cout<<setw(3) << it<<" ";
-        }
-        cout<<endl;
-    }
-    cout<<endl;
-    for (int c='a'; c<('a'+numb_pairs); c++) {
-        cout<<setw(10)<< naming[men[c+7].name]<<" : ";
-        for (auto it : men[c+7].priorities) {
-            cout<<setw(3) << it<<" ";
-        }
-        cout<<endl;
-    }
     return 0;
 }
 
