@@ -11,6 +11,7 @@ using namespace std;
 #define LOWER_RAND -5
 #define v_MATRIX vector<vector<int>>
 extern ofstream odpovede;
+
 v_MATRIX minor(v_MATRIX input, int row, int col) {
     v_MATRIX result;
     for (int i = 0; i < input.size(); i++) {

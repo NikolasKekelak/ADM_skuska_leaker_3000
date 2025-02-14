@@ -134,9 +134,8 @@ void LU_DECOMPOSITION(int size, int seed) {
 
 void TRANSFORMACIE(int pocet_transformacii, int seed) {
     srand(seed);
-    setTextColor(2);
+
     odpovede<<"\n\n" <<priklad<<".Domcek postaveny: \n";
-    setTextColor(7);
     MATRIX<int> DOM(5,2);
     DOM.matrix={
         {0 , 0},
@@ -179,19 +178,49 @@ void GALE_SHAPLEY(int size , int seed) {
     if (size<3)
         size=3;
 
-    setTextColor(2);
     odpovede <<priklad<<". Parovanie: https://www.youtube.com/watch?v=uigz45tk2-s&t=475s\n";
     matching(size);
     odpovede<<"\nIf women chose first:";
     find_pairing(women, men,size);
     odpovede<<"\nIf men chose first:";
     find_pairing(men, women,size);
-    setTextColor(7);
 
     output<<"\n\n" <<priklad++<<"\\textbf{.Použite Gale-Shapley algoritmus pre určenie najlepšieho možného párovania v prípade preferencií zadaných tabuľkou}\n\na) V prípade, že muž si vyberá ako prvý.\n\nb) V prípade, že žena si vyberá ako prvá.\n\nPorovnajte oba výsledky\n";
     matching(output,size);
     output<<"\n\\newpage\n";
     clear_preferences();
+}
+void KRITICKA_CESTA(int pocet_vrcholov, int seed) {
+    srand(seed);
+}
+
+void FORD_FULKERSON(vector<int> layers, int seed) {
+    srand(seed);
+    GRAPH graph;
+    MATRIX A=graph.layer_distribution(layers, "");
+    graph.flow_edges(A);
+    graph.latex_display(output,"scale=1");
+    output<<"\n\\newpage\n";
+}
+
+void DJIKSTRA(int number_of_vertices, int seed) {
+    srand(seed);
+    GRAPH graph;
+    graph.layer_distribution({5,4,3,4,5},"color=violet");
+    graph.proximity_edges(4.0, "");
+    graph.latex_display(output,"scale=0.8");
+    graph.latex_display(output,"scale=0.8");
+    output<<"\n\\newpage\n";
+}
+
+void SPANNING_TREE(int number_of_vertices, int seed) {
+    srand(seed);
+    GRAPH graph;
+    graph.rand_distribution(20, 2, "color=orange");
+    graph.proximity_edges(4.0, "");
+    graph.latex_display(output,"scale=0.8");
+    graph.latex_display(output,"scale=0.8");
+    output<<"\n\\newpage\n";
 }
 
 int main() {
@@ -205,6 +234,7 @@ int main() {
     output<<"SEED: "<<seed<<"\n";
 
     //uprav si podla seba
+
         GAUSOVKA(4,seed++);
         INVERZNA(4,seed);
         KRAMEROVO(4,seed++);
@@ -216,7 +246,6 @@ int main() {
         FORD_FULKERSON({1,3,3,3,1},seed++);
         SPANNING_TREE(20,seed++);
         DJIKSTRA(20, seed++);
-        AUGMENTING_PATH(5,seed++);
 
     //taktiez nemenit
     output<<"\\end{document}\n";
